@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问卷二维码生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 32px;
+        }
+
+        .input-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 8px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 18px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            color: #2d3748;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.45);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 8px 20px rgba(240, 147, 251, 0.35);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 12px 28px rgba(240, 147, 251, 0.45);
+        }
+
+        #qrcodeContainer {
+            margin: 32px 0;
+            padding: 24px;
+            background: white;
+            border-radius: 16px;
+            display: none;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        #qrcodeContainer.show {
+            display: block;
+        }
+
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tip {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 16px;
+            line-height: 1.8;
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .demo-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 16px;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .demo-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>问卷二维码生成器</h1>
+        <p class="subtitle">大学生线上消费现状调查问卷</p>
+
+        <div class="input-group">
+            <label for="urlInput">请输入问卷页面的完整访问地址：</label>
+            <input type="text" id="urlInput" placeholder="例如：https://yourdomain.com/survey.html">
+        </div>
+
+        <button class="btn" onclick="generateQRCode()">生成二维码</button>
+        <button class="btn btn-secondary" onclick="downloadQRCode()">下载二维码</button>
+
+        <div id="qrcodeContainer">
+            <div id="qrcode"></div>
+        </div>
+
+        <div class="tip">
+            <strong>使用说明：</strong><br>
+            1. 将 survey.html 上传到服务器或使用本地预览<br>
+            2. 输入完整的访问地址<br>
+            3. 生成并下载二维码<br>
+            4. 打印或分享二维码图片
+        </div>
+
+        <a href="survey.html" class="demo-btn" target="_blank">📋 预览问卷页面</a>
+    </div>
+
+    <!-- 引入 QRCode.js 库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        let qrcode = null;
+
+        function generateQRCode() {
+            const url = document.getElementById('urlInput').value.trim();
+
+            if (!url) {
+                alert('请输入问卷页面的访问地址！');
+                return;
+            }
+
+            // 清除旧的二维码
+            const qrcodeContainer = document.getElementById('qrcode');
+            qrcodeContainer.innerHTML = '';
+
+            // 生成新的二维码
+            qrcode = new QRCode(qrcodeContainer, {
+                text: url,
+                width: 280,
+                height: 280,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('qrcodeContainer').classList.add('show');
+        }
+
+        function downloadQRCode() {
+            const container = document.getElementById('qrcodeContainer');
+
+            if (!container.classList.contains('show')) {
+                alert('请先生成二维码！');
+                return;
+            }
+
+            // 获取二维码canvas或img元素
+            const qrcodeElement = document.querySelector('#qrcode canvas') || document.querySelector('#qrcode img');
+
+            if (!qrcodeElement) {
+                alert('二维码生成失败，请重试！');
+                return;
+            }
+
+            // 创建下载链接
+            let imageUrl;
+            if (qrcodeElement.tagName === 'CANVAS') {
+                imageUrl = qrcodeElement.toDataURL('image/png');
+            } else {
+                imageUrl = qrcodeElement.src;
+            }
+
+            const link = document.createElement('a');
+            link.download = '大学生消费调查问卷二维码.png';
+            link.href = imageUrl;
+            link.click();
+        }
+
+        // 示例：使用本地文件路径作为默认值
+        window.addEventListener('load', function() {
+            const currentPath = window.location.href.replace('qrcode-generator.html', 'survey.html');
+            document.getElementById('urlInput').value = currentPath;
+        });
+    </script>
+</body>
+</html>
